@@ -1,12 +1,13 @@
 const fs = require("fs");
 const path = require("path");
 
-const blmPath = "/tmp/151_151_01.BLM";
+// const blmPath = "/tmp/151_151_01_f20.BLM";
+// const blmPath1 = "/tmp/151_151_01_f4.BLM";
 // const blmPath = "C:/xampp/htdocs/haus-student/tmp/151_151_01.BLM"; 
 
-const retriveDataFromFile = async () => {
+const retriveDataFromFile = async (filePath) => {
   try {
-    const data = fs.readFileSync(blmPath, "utf8");
+    const data = fs.readFileSync(filePath, "utf8");
 
     const lines = data.split("\n");
     const metadata = lines.slice(0, 5);

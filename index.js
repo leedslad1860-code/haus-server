@@ -35,7 +35,9 @@ Handlebars.registerHelper("increment", function (index) {
 
 const app = express();
 const port = process.env.PORT || 5000;
-const blmPath = "./up/115_111_01.BLM";
+// const blmPath = "./up/115_111_01.BLM";
+const mainBlmPath = "/tmp/151_151_01_f21.BLM";
+const studentBlmPath = "/tmp/151_151_01_f20.BLM";
 
 const corsConfig = {
   origin: ["*", "http://localhost:5173", "http://localhost:5000", "https://localhost:5000", "https://haus-client.vercel.app", "https://haus-student.vercel.app"],
@@ -279,7 +281,7 @@ async function downloadFilesFromFTP() {
     // console.log(files);
     for (const file of files) {
       if (file.isFile) {
-        if (file.name.toLowerCase() === "151_151_01.blm") {
+        if (file.name.toLowerCase() === "151_151_01_f20.blm" || file.name.toLowerCase() === "151_151_01_f21.blm") {
           const remotePath = file.name;
           const localPath = path.join(localDirectory, remotePath);
 
@@ -303,15 +305,33 @@ cron.schedule("59 15 * * *", async () => {
   await connect();
   await downloadFilesFromFTP();
   console.log("FTP download completed.");
-  let rawData = await retriveDataFromFile();
+  const mainBlmPath = "/tmp/151_151_01_f20.BLM";
+  const studentBlmPath = "/tmp/151_151_01_f4.BLM";
+
+  let rawData = await retriveDataFromFile(mainBlmPath);
+  let studentProperties = await retriveDataFromFile(studentBlmPath);
+
   const propertiesWithSlugs = rawData.map((property) => {
     return {
       ...property,
       slug: generatePropertySlug(property),
+      is_student_property: false,
     };
   });
   await PropertyModel.deleteMany();
-  await PropertyModel.insertMany(rawData);
+  if(propertiesWithSlugs.length > 0){
+    await PropertyModel.insertMany(rawData);
+  }
+  const studentAgentRefs = studentProperties.map(p => p.AGENT_REF).filter(ref => ref); // Get all AGENT_REFs from student file
+  if (studentAgentRefs.length > 0) {
+    console.log(`Found ${studentAgentRefs.length} student properties. Marking them in the database...`);
+    const updateResult = await PropertyModel.updateMany(
+      { AGENT_REF: { $in: studentAgentRefs } }, // Find all documents where AGENT_REF is in our list
+      { $set: { is_student_property: true } }    // Set the flag to true
+    );
+    console.log(`${updateResult.modifiedCount} properties marked as student properties.`);
+  }
+  await PropertyModel.insertMany(stuData);
 
   //--------------- Calculating the price up down and saving it to database --------------------
   await priceReductionCheck();
@@ -324,16 +344,28 @@ app.get("/download-ftp", async (req, res) => {
   await connect();
   await downloadFilesFromFTP();
   console.log("FTP download completed.");
-  let rawData = await retriveDataFromFile();
+  let rawData = await retriveDataFromFile(mainBlmPath);
+  let studentProperties = await retriveDataFromFile(studentBlmPath);
   const propertiesWithSlugs = rawData.map((property) => {
     return {
       ...property,
       slug: generatePropertySlug(property),
+      is_student_property: false,
     };
   });
   await PropertyModel.deleteMany();
-  await PropertyModel.insertMany(propertiesWithSlugs);
-
+  if(propertiesWithSlugs.length > 0){
+    await PropertyModel.insertMany(rawData);
+  }
+  const studentAgentRefs = studentProperties.map(p => p.AGENT_REF).filter(ref => ref); // Get all AGENT_REFs from student file
+  if (studentAgentRefs.length > 0) {
+    console.log(`Found ${studentAgentRefs.length} student properties. Marking them in the database...`);
+    const updateResult = await PropertyModel.updateMany(
+      { AGENT_REF: { $in: studentAgentRefs } }, // Find all documents where AGENT_REF is in our list
+      { $set: { is_student_property: true } }    // Set the flag to true
+    );
+    console.log(`${updateResult.modifiedCount} properties marked as student properties.`);
+  }
   //--------------- Calculating the price up down and saving it to database --------------------
   await priceReductionCheck();
   console.log("Data restored and Emails were sent...!");

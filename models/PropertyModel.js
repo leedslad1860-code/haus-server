@@ -121,6 +121,10 @@ const PropertySchema = new mongoose.Schema({
     unique: true,
     index: true,
   },
+  is_student_property: {
+    type: Boolean,
+    default: false, // Default to false
+  },
 });
 
 const PropertyModel = mongoose.model("properties", PropertySchema);
