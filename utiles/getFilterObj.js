@@ -6,7 +6,10 @@ const getFilterObj = (query) => {
   if (query.agent_ref) {
     filter.AGENT_REF = new RegExp(query.agent_ref, "i");
   }
-    /*
+  if (query.is_student_property !== undefined) {
+    filter.is_student_property = query.is_student_property === "true";
+  }
+      /*
   if (query.badrooms) {
     const bedroomsArray = query.badrooms.split(",").map(Number); // Convert the "4,5,7,8" string into an array of numbers
     filter.BEDROOMS = { $in: bedroomsArray };
