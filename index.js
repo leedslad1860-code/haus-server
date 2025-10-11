@@ -355,7 +355,7 @@ app.get("/download-ftp", async (req, res) => {
   });
   await PropertyModel.deleteMany();
   if(propertiesWithSlugs.length > 0){
-    await PropertyModel.insertMany(rawData);
+    await PropertyModel.insertMany(propertiesWithSlugs);
   }
   const studentAgentRefs = studentProperties.map(p => p.AGENT_REF).filter(ref => ref); // Get all AGENT_REFs from student file
   if (studentAgentRefs.length > 0) {

@@ -9,18 +9,18 @@ const path = require('path');
 Handlebars.registerHelper("increment", function (index) {
   return index + 1;
 });
+// Setting the email template
+const source = fs
+  .readFileSync(path.resolve(__dirname, "../email-templates/template4.html"), "utf-8")
+  .toString();
+const template = Handlebars.compile(source);
+
 
 const priceReductionCheck = async () => {
   const users = await User.find();
   if (users.length < 1) {
     return;
   }
-  // Setting the email template
-  const source = fs
-    .readFileSync(path.resolve(__dirname, "../email-templates/template4.html"), "utf-8")
-    .toString();
-  const template = Handlebars.compile(source);
-
   await Promise.all(
     users.map(async (user) => {
       // Checking if this is the time to send emails
