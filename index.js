@@ -40,7 +40,7 @@ const mainBlmPath = "/tmp/151_151_01_f21.BLM";
 const studentBlmPath = "/tmp/151_151_01_f20.BLM";
 
 const corsConfig = {
-  origin: ["*", "http://localhost:5173", "http://localhost:5000", "https://localhost:5000", "https://haus-client.vercel.app", "https://haus-student.vercel.app", "https://haus-student.com"],
+  origin: ["*", "http://localhost:5173", "http://localhost:5000", "https://localhost:5000", "https://haus-client.vercel.app", "https://haus-student.vercel.app", "https://haus-student.com", "https://WWW.haus-student.com"],
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 };
