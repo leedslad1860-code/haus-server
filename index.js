@@ -143,6 +143,33 @@ app.post("/send-touch-mail", async (req, res) => {
         .json({ message: "Please provide all the required fields" });
     }
 
+    // Server-side reCAPTCHA v2 verification (Google requires solutions to be verified).
+    // Enabled once RECAPTCHA_SECRET (the v2 secret key) is set in the environment.
+    const recaptchaSecret = process.env.RECAPTCHA_SECRET;
+    if (recaptchaSecret) {
+      const token = reqBody.recaptcha_token;
+      if (!token) {
+        return res.status(400).json({ message: "Please complete the CAPTCHA" });
+      }
+      try {
+        const gres = await fetch(
+          "https://www.google.com/recaptcha/api/siteverify",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `secret=${encodeURIComponent(recaptchaSecret)}&response=${encodeURIComponent(token)}`,
+          }
+        );
+        const gjson = await gres.json();
+        if (!gjson.success) {
+          return res.status(400).json({ message: "CAPTCHA verification failed" });
+        }
+      } catch (e) {
+        console.error("reCAPTCHA verify error", e);
+        return res.status(500).json({ message: "CAPTCHA verification error" });
+      }
+    }
+
     const source = fs
       .readFileSync("email-templates/template2.html", "utf-8")
       .toString();
