@@ -49,7 +49,9 @@ const getFilterObj = (query) => {
         {
           $lte: [
             priceExpr,
-            query.max_price === "0" ? 200 : Number(query.max_price),
+            query.max_price === "0"
+              ? (query.prop_sub_id === "48" ? 100000 : 200) // Room Only prices are per month; no upper cap on NO MAX
+              : Number(query.max_price),
           ],
         },
       ],
