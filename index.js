@@ -306,9 +306,9 @@ cron.schedule("59 15 * * *", async () => {
   await connect();
   await downloadFilesFromFTP();
   console.log("FTP download completed.");
-  const mainBlmPath = "/tmp/151_151_01_f20.BLM";
-  const studentBlmPath = "/tmp/151_151_01_f4.BLM";
-
+  // Use the module-level paths: main = f21 (all properties), student = f20 (student subset).
+  // (Previously this block read a never-downloaded f4 file, inserted rawData without the
+  //  slug/flag the frontend needs, and ended on an undefined `stuData` which crashed the run.)
   let rawData = await retriveDataFromFile(mainBlmPath);
   let studentProperties = await retriveDataFromFile(studentBlmPath);
 
@@ -321,7 +321,7 @@ cron.schedule("59 15 * * *", async () => {
   });
   await PropertyModel.deleteMany();
   if(propertiesWithSlugs.length > 0){
-    await PropertyModel.insertMany(rawData);
+    await PropertyModel.insertMany(propertiesWithSlugs);
   }
   const studentAgentRefs = studentProperties.map(p => p.AGENT_REF).filter(ref => ref); // Get all AGENT_REFs from student file
   if (studentAgentRefs.length > 0) {
@@ -332,7 +332,6 @@ cron.schedule("59 15 * * *", async () => {
     );
     console.log(`${updateResult.modifiedCount} properties marked as student properties.`);
   }
-  await PropertyModel.insertMany(stuData);
 
   //--------------- Calculating the price up down and saving it to database --------------------
   await priceReductionCheck();
