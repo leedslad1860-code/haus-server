@@ -27,6 +27,10 @@ const attachRooms = async (properties, roomsFilePath) => {
       LET_DATE_AVAILABLE: r.LET_DATE_AVAILABLE || "",
       LET_RENT_FREQUENCY: r.LET_RENT_FREQUENCY || "",
       MEDIA_IMAGE_00: r.MEDIA_IMAGE_00 || "",
+      PHOTOS: (r.ROOM_PHOTOS || r.MEDIA_IMAGE_00 || "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
       TLS_ENSUITE: r.TLS_ENSUITE || "",
       TLS_ENSUITE_IMAGE: r.TLS_ENSUITE_IMAGE || "",
     });
