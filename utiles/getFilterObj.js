@@ -56,6 +56,7 @@ const getFilterObj = (query) => {
   if (query.prop_sub_id && query.prop_sub_id !== "") {
     if (query.prop_sub_id === "48") {
       filter.has_rooms = true; // Room Only = properties with rooms still to let
+      delete filter.STATUS_ID; // rooms are what's on offer, so a let-agreed house with free rooms still shows
     } else {
       filter.PROP_SUB_ID = query.prop_sub_id;
     }
