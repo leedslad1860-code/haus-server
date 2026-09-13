@@ -116,6 +116,13 @@ const PropertySchema = new mongoose.Schema({
   EPC_EIRP: String,
   TLS_INCENTIVE: String,
   TLS_SOCIALMEDIA: String,
+  TLS_LETTING_TYPE: String,
+  TLS_LETTING_ADVERTS: String,
+  TLS_HOUSEMATES: String,
+  TLS_HOUSEMATES_DATE: String,
+  has_rooms: { type: Boolean, default: false },
+  rooms_from: { type: Number, default: null },
+  rooms: { type: Array, default: [] },
   slug: {
     type: String,
     unique: true,

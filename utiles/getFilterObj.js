@@ -54,7 +54,11 @@ const getFilterObj = (query) => {
     };
   }
   if (query.prop_sub_id && query.prop_sub_id !== "") {
-    filter.PROP_SUB_ID = query.prop_sub_id;
+    if (query.prop_sub_id === "48") {
+      filter.has_rooms = true; // Room Only = properties with rooms still to let
+    } else {
+      filter.PROP_SUB_ID = query.prop_sub_id;
+    }
   }
   if (query.location && query.location !== "") {
     filter.$or = [

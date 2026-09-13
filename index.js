@@ -20,6 +20,7 @@ const userRouter = require("./routers/userRouter.js");
 const searchRouter = require("./routers/searchRouter.js");
 const retriveDataFromFile = require("./utiles/retriveData.js");
 const generatePropertySlug = require("./utiles/generateSlug.js");
+const attachRooms = require("./utiles/attachRooms.js");
 const alertRouter = require("./routers/alertRouter.js");
 const priceReductionCheck = require("./utiles/priceReductionCheck.js");
 const transporter = require("./utiles/emailTransportar.js");
@@ -282,7 +283,8 @@ async function downloadFilesFromFTP() {
     // console.log(files);
     for (const file of files) {
       if (file.isFile) {
-        if (file.name.toLowerCase() === "151_151_01_f20.blm" || file.name.toLowerCase() === "151_151_01_f21.blm") {
+        const wanted = ["151_151_01_f20.blm", "151_151_01_f21.blm", "151_151_02_f20.blm", "151_151_02_f21.blm"];
+        if (wanted.includes(file.name.toLowerCase())) {
           const remotePath = file.name;
           const localPath = path.join(localDirectory, remotePath);
 
@@ -319,9 +321,11 @@ cron.schedule("59 15 * * *", async () => {
       is_student_property: false,
     };
   });
+  // Attach the rooms still to let (rooms file 02) to each property by AGENT_REF
+  const propertiesWithRooms = await attachRooms(propertiesWithSlugs, "/tmp/151_151_02_f21.BLM");
   await PropertyModel.deleteMany();
-  if(propertiesWithSlugs.length > 0){
-    await PropertyModel.insertMany(propertiesWithSlugs);
+  if(propertiesWithRooms.length > 0){
+    await PropertyModel.insertMany(propertiesWithRooms);
   }
   const studentAgentRefs = studentProperties.map(p => p.AGENT_REF).filter(ref => ref); // Get all AGENT_REFs from student file
   if (studentAgentRefs.length > 0) {
@@ -353,9 +357,11 @@ app.get("/download-ftp", async (req, res) => {
       is_student_property: false,
     };
   });
+  // Attach the rooms still to let (rooms file 02) to each property by AGENT_REF
+  const propertiesWithRooms = await attachRooms(propertiesWithSlugs, "/tmp/151_151_02_f21.BLM");
   await PropertyModel.deleteMany();
-  if(propertiesWithSlugs.length > 0){
-    await PropertyModel.insertMany(propertiesWithSlugs);
+  if(propertiesWithRooms.length > 0){
+    await PropertyModel.insertMany(propertiesWithRooms);
   }
   const studentAgentRefs = studentProperties.map(p => p.AGENT_REF).filter(ref => ref); // Get all AGENT_REFs from student file
   if (studentAgentRefs.length > 0) {
