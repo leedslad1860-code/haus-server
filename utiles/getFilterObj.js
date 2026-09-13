@@ -41,12 +41,14 @@ const getFilterObj = (query) => {
     }
   }
   if (query.max_price || query.min_price) {
+    // Room Only: the price range is per person (the room price), not the whole-property PCM figure
+    const priceExpr = query.prop_sub_id === "48" ? "$rooms_from" : { $toDouble: "$PRICE" };
     filter.$expr = {
       $and: [
-        { $gte: [{ $toDouble: "$PRICE" }, Number(query.min_price)] },
+        { $gte: [priceExpr, Number(query.min_price)] },
         {
           $lte: [
-            { $toDouble: "$PRICE" },
+            priceExpr,
             query.max_price === "0" ? 200 : Number(query.max_price),
           ],
         },
